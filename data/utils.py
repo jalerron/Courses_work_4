@@ -1,5 +1,17 @@
 import psycopg2
+import os
 from data.hh import HeadHunterAPI
+from data.settings import DBdata
+
+
+def create_connection():
+    connection = psycopg2.connect(
+        database=DBdata['db_name'],
+        user=DBdata['db_user'],
+        password=DBdata['db_password'],
+        host=DBdata['db_host']
+    )
+    return connection
 
 
 def create_database():
@@ -7,8 +19,8 @@ def create_database():
     Создание базы данных
     """
 
-    conn_data = psycopg2.connect(host="localhost", database="postgres",
-                                    user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
+    conn_data = psycopg2.connect(host="localhost", database=f"{DBdata['db_name'][0]}",
+                                 user="postgres", password=f"{DBdata['db_password']}", client_encoding="utf-8")
 
     conn_data.autocommit = True
     cur = conn_data.cursor()
@@ -28,8 +40,8 @@ def create_tables():
     """
     Функция для создания таблиц
     """
-    conn_data = psycopg2.connect(host="localhost", database="course_work_5",
-                                 user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
+    conn_data = psycopg2.connect(host="localhost", database=f"{DBdata['db_name'][1]}",
+                                 user="postgres", password=f"{DBdata['db_password']}", client_encoding="utf-8")
     with conn_data as conn_:
         with conn_.cursor() as cur:
             # Создание таблиц
@@ -59,7 +71,7 @@ def create_tables():
 
 def add_to_table(companies):
     conn_data = psycopg2.connect(host="localhost", database="course_work_5",
-                                 user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
+                                 user="postgres", password=f"{DBdata['db_password']}", client_encoding="utf-8")
     data_hh = HeadHunterAPI()
     companies_data = data_hh.get_companies(companies)
     with conn_data as conn_:
