@@ -1,5 +1,5 @@
 import psycopg2
-from data.class_hh import HeadHunterAPI
+from data.hh import HeadHunterAPI
 
 
 def create_database(conn_data):
@@ -76,3 +76,5 @@ def add_to_table(conn_data, companies):
                                  vacancy_data['company_id']))
 
             conn_.commit()
+
+
