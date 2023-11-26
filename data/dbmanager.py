@@ -4,9 +4,9 @@ class DBManager:
     """
     Класс для работы с базой данных
     """
-    def __init__(self, conn_data):
-        self.conn_data = conn_data
-
+    def __init__(self):
+        self.conn_data = psycopg2.connect(host="localhost", database="course_work_5",
+                                 user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
     def get_companies_and_vacancies_count(self):
         """
         Получает список всех компаний и количество вакансий у каждой компании

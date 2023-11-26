@@ -2,8 +2,13 @@ import psycopg2
 from data.hh import HeadHunterAPI
 
 
-def create_database(conn_data):
-    """Создание базы данных"""
+def create_database():
+    """
+    Создание базы данных
+    """
+
+    conn_data = psycopg2.connect(host="localhost", database="postgres",
+                                    user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
 
     conn_data.autocommit = True
     cur = conn_data.cursor()
@@ -19,7 +24,12 @@ def create_database(conn_data):
     cur.close()
 
 
-def create_tables(conn_data):
+def create_tables():
+    """
+    Функция для создания таблиц
+    """
+    conn_data = psycopg2.connect(host="localhost", database="course_work_5",
+                                 user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
     with conn_data as conn_:
         with conn_.cursor() as cur:
             # Создание таблиц
@@ -28,7 +38,7 @@ def create_tables(conn_data):
                         CREATE TABLE IF NOT EXISTS companies (
                         company_id INTEGER PRIMARY KEY,
                         company_name varchar(255),
-                        url varchar(30),
+                        url varchar(150),
                         open_vacancies INTEGER
                         )""")
 
@@ -47,13 +57,14 @@ def create_tables(conn_data):
             conn_.commit()
 
 
-def add_to_table(conn_data, companies):
+def add_to_table(companies):
+    conn_data = psycopg2.connect(host="localhost", database="course_work_5",
+                                 user="postgres", password="Swtbme666^^^", client_encoding="utf-8")
     data_hh = HeadHunterAPI()
     companies_data = data_hh.get_companies(companies)
     with conn_data as conn_:
         with conn_.cursor() as cur:
             for company in companies_data:
-                # print(company)
                 # Получение данных о компании по API
                 # Добавление компании в таблицу с игнорированием конфликта
                 cur.execute('INSERT INTO companies (company_id, company_name, url, open_vacancies) '
@@ -64,17 +75,19 @@ def add_to_table(conn_data, companies):
                 # Получение вакансий для компании по API
                 vacancies_list = data_hh.get_vacancies(company['company_id'])
 
+                i = 0
                 for vacancy_data in vacancies_list:
-                    # Добавление вакансии в таблицу с игнорированием конфликта
-                    cur.execute('INSERT INTO vacancies (vacancy_id, vacancies_name, '
-                                'salary_from, salary_to, currency, '
-                                'requirement, vacancies_url, company_id) '
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
-                                (vacancy_data['vacancy_id'], vacancy_data['vacancies_name'],
-                                 int(vacancy_data['salary_from']), int(vacancy_data['salary_to']), vacancy_data['currency'],
-                                 vacancy_data['requirement'], vacancy_data['vacancy_url'],
-                                 vacancy_data['company_id']))
+                    if i <= 10:
+                        i += 1
+                        cur.execute('INSERT INTO vacancies (vacancy_id, vacancies_name, '
+                                    'salary_from, salary_to, currency, '
+                                    'requirement, vacancies_url, company_id) '
+                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
+                                    (vacancy_data['vacancy_id'], vacancy_data['vacancies_name'],
+                                     int(vacancy_data['salary_from']), int(vacancy_data['salary_to']),
+                                     vacancy_data['currency'], vacancy_data['requirement'],
+                                     vacancy_data['vacancy_url'], vacancy_data['company_id']))
+                    else:
+                        break
 
             conn_.commit()
-
-
